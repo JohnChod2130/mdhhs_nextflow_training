@@ -28,9 +28,12 @@ workflow MYFIRSTPIPELINE {
     multiqc_methods_description
     outdir
 
-    main:
+    main: 
     //Check for the existence of a reference file and create a channel
-    def ch_reference = channel.fromPath(params.reference, checkIfExists: true)
+    //def ch_reference = channel.fromPath(params.reference, checkIfExists: true)
+    //def ch_reference = file(params.reference, checkIfExists: true)
+    def ch_reference = channel.value(file(params.reference))
+
     ch_reference.view()
     
     def ch_versions = channel.empty()
