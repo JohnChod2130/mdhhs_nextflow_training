@@ -2,18 +2,12 @@ process READITANDKEEP {
     tag "$meta.id"
     label 'process_low'
 
-    // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/read-it-and-keep:0.3.0--h5ca1c30_3':
-        'ghcr.io/globalpathogenanalysisservice/read-it-and-keep:v0.3.0' }"
+        'quay.io/biocontainers/read-it-and-keep:0.3.0--h5ca1c30_3' }"
 
-    input:// TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
-    //               MUST be provided as an input via a Groovy Map called "meta".
-    //               This information may not be required in some instances e.g. indexing reference genome files:
-    //               https://github.com/nf-core/modules/blob/master/modules/nf-core/bwa/index/main.nf
-    // TODO nf-core: Where applicable please provide/convert compressed files as input/output
-    //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
+    input:
     tuple val(meta), path(reads)
     path reference
 
@@ -31,11 +25,11 @@ process READITANDKEEP {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     readItAndKeep \\
-        --ref_fasta $reference \\
-        --reads1 ${prefix}_R1_001.fastq.gz \\
-        --reads2 ${prefix}_R2_001.fastq.gz \\
+        --ref_fasta ${reference} \\
+        --reads1 ${reads[0]} \\
+        --reads2 ${reads[1]} \\
         --outprefix ${prefix} \\
-        $args \\
+        ${args} \\
         > ${prefix}_scrubbed_results.txt
     """
 
